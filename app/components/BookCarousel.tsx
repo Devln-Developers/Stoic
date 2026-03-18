@@ -88,6 +88,37 @@ export default function BookCarousel() {
     return () => observer.disconnect();
   }, []);
 
+  // ── touch swipe: left = next, right = prev ───────────────────────────────
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (entryPhase !== "done") return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      // Ignore if mostly vertical (user is scrolling the page)
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      const curr = currentRef.current;
+      if (dx < 0 && curr < books.length - 1) runTransition(curr + 1); // swipe left → next
+      if (dx > 0 && curr > 0)               runTransition(curr - 1); // swipe right → prev
+    };
+
+    const el = sectionRef.current;
+    if (!el) return;
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend",   onTouchEnd,   { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend",   onTouchEnd);
+    };
+  }, [entryPhase, runTransition]);
+
   // ── wheel intercept: each tick = one book; at boundary, page scrolls ─────
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
