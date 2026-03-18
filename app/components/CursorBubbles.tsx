@@ -37,23 +37,22 @@ export default function CursorBubbles() {
 
       const el = document.createElement("div");
 
-      Object.assign(el.style, {
-        position:     "fixed",
-        left:         `${e.clientX - size / 2}px`,
-        top:          `${e.clientY - size / 2}px`,
-        width:        `${size}px`,
-        height:       `${size}px`,
-        borderRadius: "50%",
-        // Radial gradient: bright centre → transparent edge (no blur needed)
-        background:   `radial-gradient(circle at 35% 35%, rgba(${v.color},0.95) 0%, rgba(${v.color},0.35) 45%, transparent 75%)`,
-        boxShadow:    `0 0 ${v.glow}px rgba(${v.color},0.75), 0 0 ${v.glow * 2}px rgba(${v.color},0.35)`,
-        pointerEvents: "none",
-        zIndex:        "99999",
-        willChange:    "transform, opacity",
-        animation:     `orb-float ${dur}ms cubic-bezier(0.22,1,0.36,1) forwards`,
-        "--drift":     `${drift}px`,
-        "--rise":      `${rise}px`,
-      } as CSSStyleDeclaration & Record<string, string>);
+      el.style.cssText = `
+        position: fixed;
+        left: ${e.clientX - size / 2}px;
+        top: ${e.clientY - size / 2}px;
+        width: ${size}px;
+        height: ${size}px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, rgba(${v.color},0.95) 0%, rgba(${v.color},0.35) 45%, transparent 75%);
+        box-shadow: 0 0 ${v.glow}px rgba(${v.color},0.75), 0 0 ${v.glow * 2}px rgba(${v.color},0.35);
+        pointer-events: none;
+        z-index: 99999;
+        will-change: transform, opacity;
+        --drift: ${drift}px;
+        --rise: ${rise}px;
+        animation: orb-float ${dur}ms cubic-bezier(0.22,1,0.36,1) forwards;
+      `;
 
       document.body.appendChild(el);
       el.addEventListener("animationend", () => el.remove(), { once: true });
