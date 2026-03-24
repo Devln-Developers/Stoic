@@ -46,18 +46,20 @@ const InstagramBadge = () => (
 );
 
 export default function Home() {
-  const zoneRef   = useRef<HTMLDivElement>(null);
-  const heroRef   = useRef<HTMLDivElement>(null);
-  const textRef   = useRef<HTMLDivElement>(null);
-  const badgeRef  = useRef<HTMLDivElement>(null);
-  const phoneRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const zoneRef    = useRef<HTMLDivElement>(null);
+  const heroRef    = useRef<HTMLDivElement>(null);
+  const textRef    = useRef<HTMLDivElement>(null);
+  const badgeRef   = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const phoneRefs  = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
 
   useEffect(() => {
-    const zone  = zoneRef.current;
-    const hero  = heroRef.current;
-    const text  = textRef.current;
-    const badge = badgeRef.current;
-    const pEls  = phoneRefs.current;
+    const zone    = zoneRef.current;
+    const hero    = heroRef.current;
+    const text    = textRef.current;
+    const badge   = badgeRef.current;
+    const overlay = overlayRef.current;
+    const pEls    = phoneRefs.current;
     if (!zone || !hero || !text) return;
 
     pEls.forEach(el => { if (el) el.style.willChange = "transform, opacity"; });
@@ -91,10 +93,19 @@ export default function Home() {
         const scale   = p < 0.6 ? scalePresent : scaleFinal;
         const opacVal = p < 0.6 ? 1 : opacity;
         const nudge   = lerp(0, rotate * 2.5, t3);
+        const blurPx  = p < 0.6 ? 0 : lerp(0, 18, t3);
 
         el.style.transform = `translateX(calc(-50% + ${nudge}px)) rotate(${currentRotate}deg) scale(${scale})`;
         el.style.opacity   = String(opacVal);
+        el.style.filter    = blurPx > 0 ? `blur(${blurPx}px)` : "";
       });
+
+      // Dark overlay blurs in as phones fade out, covering the gap
+      if (overlay) {
+        const tOverlay = remap(p, 0.55, 1.0);
+        overlay.style.opacity = String(lerp(0, 1, tOverlay));
+        overlay.style.backdropFilter = tOverlay > 0 ? `blur(${lerp(0, 24, tOverlay)}px)` : "";
+      }
 
       if (p >= 0.999) {
         pEls.forEach(el => { if (el) el.style.willChange = "auto"; });
@@ -151,7 +162,7 @@ export default function Home() {
   return (
     <section className="bg-[#030303] min-h-screen overflow-x-clip">
 
-      {/* ── 200vh scroll zone: hero sticks inside, 100vh of scroll space ── */}
+      {/* ── scroll zone: hero sticks inside ── */}
       <div ref={zoneRef} style={{ height: "150vh" }}>
 
         {/* Sticky hero container */}
@@ -203,11 +214,6 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div>
-                  <button className="bg-[#030303] border border-[#2d2d2d] text-white text-[14px] font-semibold leading-[20px] px-[16px] py-[12px] rounded-[36px] cursor-pointer hover:border-[#747474] transition-colors whitespace-nowrap">
-                    CLAIM YOURS NOW
-                  </button>
-                </div>
               </div>
             </div>
 
@@ -247,13 +253,25 @@ export default function Home() {
 
             </div>
           </div>
+          {/* Blur/fade overlay — covers phones as they exit, bridges gap to next section */}
+          <div
+            ref={overlayRef}
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: 0,
+              pointerEvents: "none",
+              background: "radial-gradient(ellipse at 50% 60%, rgba(3,3,3,0.6) 0%, #030303 70%)",
+              zIndex: 10,
+            }}
+          />
         </div>
 
       </div>
       {/* ── End scroll zone ── */}
 
-      {/* Pull carousel up so it rises from below as hero phones fade — no black gap */}
-      <div style={{ marginTop: "-50vh", position: "relative" }}>
+      {/* Pull carousel up — it rises from below as hero blurs out */}
+      <div style={{ marginTop: "-50vh", position: "relative", zIndex: 1 }}>
         <BookCarousel />
       </div>
       <DisciplineSection />

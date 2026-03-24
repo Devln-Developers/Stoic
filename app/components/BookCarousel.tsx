@@ -174,8 +174,14 @@ export default function BookCarousel() {
           100% { transform: translate(-130%, 130%)       scale(0.82); }
         }
         @keyframes bookIncoming {
-          from { transform: scale(0.86); filter: blur(10px); opacity: 0.4; }
-          to   { transform: scale(1);    filter: blur(0px);  opacity: 1;   }
+          0%   { transform: scale(0.72); filter: blur(18px) brightness(1.6); opacity: 0;   }
+          60%  { transform: scale(1.07); filter: blur(0px)  brightness(1.35); opacity: 1;  }
+          100% { transform: scale(1);    filter: blur(0px)  brightness(1);    opacity: 1;  }
+        }
+        @keyframes cardGlow {
+          0%   { box-shadow: 0 0 0px 0px rgba(255,255,255,0);    border-color: #747474; }
+          35%  { box-shadow: 0 0 32px 6px rgba(255,255,255,0.18); border-color: #b0b0b0; }
+          100% { box-shadow: 0 0 0px 0px rgba(255,255,255,0);    border-color: #747474; }
         }
         @keyframes fanToCenter {
           0%   {
@@ -199,6 +205,7 @@ export default function BookCarousel() {
         .book-split-up   { animation: bookSplitUp  ${DUR}ms cubic-bezier(0.4,0,0.2,1) both; }
         .book-split-down { animation: bookSplitDown ${DUR}ms cubic-bezier(0.4,0,0.2,1) both; }
         .book-incoming   { animation: bookIncoming  ${DUR}ms cubic-bezier(0.22,1,0.36,1) both; }
+        .card-glow       { animation: cardGlow      ${DUR + 120}ms cubic-bezier(0.22,1,0.36,1) both; }
         .fan-thumb       { animation: fanToCenter   ${ENTRY_MS}ms cubic-bezier(0.22,1,0.36,1) both; }
         .card-reveal     { animation: cardReveal    300ms 20ms cubic-bezier(0.22,1,0.36,1) both; }
         @keyframes textReveal {
@@ -206,6 +213,12 @@ export default function BookCarousel() {
           to   { opacity: 1; transform: translateY(0);    }
         }
         .text-reveal { animation: textReveal 600ms 80ms cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes textBlur {
+          0%   { filter: blur(0px);  opacity: 1;   }
+          30%  { filter: blur(8px);  opacity: 0.3; }
+          100% { filter: blur(0px);  opacity: 1;   }
+        }
+        .text-blur { animation: textBlur ${DUR}ms cubic-bezier(0.22,1,0.36,1) both; }
       `}</style>
 
       <div
@@ -213,7 +226,7 @@ export default function BookCarousel() {
         className="min-h-screen bg-[#030303] py-12 px-4 lg:px-[80px] flex flex-col items-center justify-center gap-6"
       >
         {/* Description */}
-        <p className={`text-white text-[16px] font-normal leading-[22px] text-center max-w-[560px] px-6${entryPhase !== "wait" ? " text-reveal" : " opacity-0"}`}>
+        <p className={`text-white text-[16px] font-normal leading-[22px] text-center max-w-[560px] px-6${entryPhase !== "wait" ? " text-reveal" : " opacity-0"}${incoming !== null ? " text-blur" : ""}`}>
           The Stoic Way is your path to unlocking inner peace and mental fortitude.
           You&apos;ll learn how to understand your emotions with clarity, confront
           challenges with reason, and cultivate the virtues needed to live with
@@ -240,10 +253,10 @@ export default function BookCarousel() {
           </svg>
 
           {/* Corner labels */}
-          <span className="absolute top-[60px]    left-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap">{CORNER_LABELS[0]}</span>
-          <span className="absolute top-[60px]   right-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap">{CORNER_LABELS[1]}</span>
-          <span className="absolute bottom-[60px] left-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap">{CORNER_LABELS[2]}</span>
-          <span className="absolute bottom-[60px] right-[0px] text-white font-bold text-[20px] leading-tight whitespace-nowrap">{CORNER_LABELS[3]}</span>
+          <span className={`absolute top-[60px]    left-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap${incoming !== null ? " text-blur" : ""}`}>{CORNER_LABELS[0]}</span>
+          <span className={`absolute top-[60px]   right-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap${incoming !== null ? " text-blur" : ""}`}>{CORNER_LABELS[1]}</span>
+          <span className={`absolute bottom-[60px] left-[0px]  text-white font-bold text-[20px] leading-tight whitespace-nowrap${incoming !== null ? " text-blur" : ""}`}>{CORNER_LABELS[2]}</span>
+          <span className={`absolute bottom-[60px] right-[0px] text-white font-bold text-[20px] leading-tight whitespace-nowrap${incoming !== null ? " text-blur" : ""}`}>{CORNER_LABELS[3]}</span>
 
           {/* Fan thumbnails — entry only */}
           {entryPhase === "fan" && books.map((book, i) => (
@@ -272,6 +285,7 @@ export default function BookCarousel() {
                 // NO overflow-hidden — lets split halves escape the card frame
                 "w-[200px] h-[286px] lg:w-[300px] lg:h-[430px]",
                 entryPhase === "done" ? "card-reveal" : "opacity-0 -translate-x-1/2 -translate-y-1/2",
+                incoming !== null ? "card-glow" : "",
               ].join(" ")}
             >
               {/* Base / incoming image — own overflow-hidden to honour border-radius */}

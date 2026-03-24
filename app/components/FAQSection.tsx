@@ -21,7 +21,7 @@ const faqs = [
 ];
 
 function FAQCard({ question, answer }: { question: string; answer: string }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="bg-[#111111] rounded-[16px] p-6 flex flex-col gap-4">

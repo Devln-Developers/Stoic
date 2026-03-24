@@ -33,7 +33,11 @@ body {
     display: flex;
   }
   .nav-cta {
-    display: block;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 0.5rem;
+    white-space: nowrap;
   }
   .nav-hamburger {
     display: none;

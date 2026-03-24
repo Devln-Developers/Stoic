@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimation } from "framer-motion";
 
 const books = [
   {
@@ -37,9 +37,10 @@ const books = [
 export default function StickyBookReveal() {
   const [active, setActive] = useState(0);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const phoneControls = useAnimation();
+  const textControls  = useAnimation();
 
   useEffect(() => {
-    // Trigger when a text section crosses the centre of the viewport
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -58,6 +59,19 @@ export default function StickyBookReveal() {
     return () => observer.disconnect();
   }, []);
 
+  // Pop the phone frame + blur the text on every image change
+  useEffect(() => {
+    phoneControls.start({
+      scale: [0.88, 1.04, 1],
+      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    });
+    textControls.start({
+      filter: ["blur(0px)", "blur(10px)", "blur(0px)"],
+      opacity: [1, 0.3, 1],
+      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    });
+  }, [active, phoneControls, textControls]);
+
   return (
     <section className="bg-[#030303]">
       {/* Description */}
@@ -74,7 +88,7 @@ export default function StickyBookReveal() {
       <div className="max-w-[1280px] mx-auto px-[80px] flex items-start gap-[80px]">
 
         {/* ── Left: scrolling text sections ── */}
-        <div className="flex-1">
+        <motion.div className="flex-1" animate={textControls}>
           {books.map((book, i) => (
             <div
               key={i}
@@ -91,30 +105,30 @@ export default function StickyBookReveal() {
                 <p className="text-[#747474] text-[16px] font-normal leading-[22px] max-w-[420px]">
                   {book.description}
                 </p>
-                <div className="mt-[8px]">
-                  <button className="bg-[#030303] border border-[#2d2d2d] text-white text-[14px] font-semibold leading-[20px] px-[16px] py-[12px] rounded-[36px] hover:border-[#747474] transition-colors whitespace-nowrap">
-                    CLAIM YOURS NOW
-                  </button>
-                </div>
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* ── Right: sticky phone mockup with animated image swap ── */}
+        {/* ── Right: sticky phone mockup with pop + animated image swap ── */}
         <div className="sticky top-0 h-screen flex items-center shrink-0 w-[340px]">
-          <div
-            className="relative border-4 border-[#747474] rounded-[20px] overflow-hidden"
-            style={{ width: 300, height: 430 }}
+          <motion.div
+            animate={phoneControls}
+            className="relative rounded-[20px] overflow-hidden"
+            style={{
+              width: 300,
+              height: 430,
+              boxShadow: "0 0 0 4px #747474",
+            }}
           >
             <AnimatePresence initial={false} mode="popLayout">
               <motion.div
                 key={active}
                 className="absolute inset-0"
-                initial={{ y: "100%" }}
-                animate={{ y: "0%" }}
-                exit={{ y: "-100%" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ y: "70%", scale: 0.82, opacity: 0 }}
+                animate={{ y: "0%", scale: 1, opacity: 1 }}
+                exit={{ y: "-55%", scale: 0.88, opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               >
                 <img
                   src={books[active].src}
@@ -123,7 +137,7 @@ export default function StickyBookReveal() {
                 />
               </motion.div>
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
 
       </div>

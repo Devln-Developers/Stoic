@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // ── Assets ────────────────────────────────────────────────────────────────────
 const imgIcon1       = "/assets/6e0c1c8eadadc49f60553a59292f375550bb866f.svg";
@@ -118,6 +118,28 @@ function useRevealOnScroll(refs: React.MutableRefObject<(HTMLDivElement | null)[
   }, [refs]);
 }
 
+// ── FAQ Card ──────────────────────────────────────────────────────────────────
+function FAQCard({ faq }: { faq: { q: string; a: string } }) {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="flex flex-col gap-[12px] bg-[#191919] rounded-[8px] p-[24px] h-full">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex gap-[12px] items-center w-full text-left"
+      >
+        <p className="flex-1 text-white font-bold text-[16px] leading-[22px]">{faq.q}</p>
+        <span className="shrink-0 w-6 h-6 rounded-full border border-[#2d2d2d] flex items-center justify-center text-white text-[16px] leading-none select-none hover:border-[#747474] transition-colors">
+          {open ? "−" : "+"}
+        </span>
+      </button>
+      {open && (
+        <p className="text-[#747474] font-normal text-[14px] leading-[20px] w-full">{faq.a}</p>
+      )}
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function DisciplineSection() {
   const featureRefs     = useRef<(HTMLDivElement | null)[]>([]);
@@ -226,7 +248,7 @@ export default function DisciplineSection() {
                 <div
                   key={i}
                   ref={el => { faqRefs.current[i] = el; }}
-                  className="flex-1 flex flex-col gap-[12px] bg-[#191919] rounded-[8px] p-[24px]"
+                  className="flex-1"
                   style={{
                     opacity: 0,
                     transform: directionStyle(dir),
@@ -234,16 +256,7 @@ export default function DisciplineSection() {
                     transitionDelay: `${i * 100}ms`,
                   }}
                 >
-                  <div className="flex gap-[12px] items-center w-full">
-                    <p className="flex-1 text-white font-bold text-[16px] leading-[22px]">{faq.q}</p>
-                    <div className="relative shrink-0 size-[18px] overflow-hidden">
-                      <img src={imgFaqIcon} alt="" className="absolute inset-0 w-full h-full" />
-                      <div className="absolute" style={{ inset: "8.33%" }}>
-                        <img src={imgFaqVector} alt="" className="absolute inset-0 w-full h-full" />
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-[#747474] font-normal text-[14px] leading-[20px] w-full">{faq.a}</p>
+                  <FAQCard faq={faq} />
                 </div>
               );
             })}

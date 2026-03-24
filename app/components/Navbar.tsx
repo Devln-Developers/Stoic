@@ -34,7 +34,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="nav-wrap w-full bg-[#030303] py-[20px] px-4">
+      <nav className="nav-wrap w-full bg-[#030303] py-[20px] px-4 sticky top-0 z-40">
         <div className="flex items-center gap-[28px]">
 
           {/* Left — nav links (desktop only, shown via .nav-links CSS) */}
@@ -274,7 +274,7 @@ export default function Navbar() {
               href="https://www.instagram.com/stoicmindset0?igsh=d2VydmZzaDV1ZjEz"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-[#030303] border border-[#2d2d2d] text-white text-[14px] font-semibold leading-[20px] px-[16px] py-[14px] rounded-[36px]"
+              className="flex flex-row items-center justify-center gap-2 w-full bg-[#030303] border border-[#2d2d2d] text-white text-[14px] font-semibold leading-[20px] px-[16px] py-[14px] rounded-[36px] whitespace-nowrap"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
